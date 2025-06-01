@@ -33,6 +33,8 @@ const App = () => {
     setVotes(copyVotes)
     // console.log(copyVotes)
   }
+  
+  
 
   const findMaxIndex = (arr) => {
     const maxValue = Math.max(...arr)
