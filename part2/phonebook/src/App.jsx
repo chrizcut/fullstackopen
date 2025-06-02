@@ -1,51 +1,17 @@
 import { useState, useEffect } from 'react'
 import personService from './services/persons'
 import './index.css'
-
-const Filter = (props) => (
-  <div>
-    Filter names: <input onChange={props.action}/>
-  </div>
-)
-
-const PersonForm = (props) => (
-  <form onSubmit={props.action}>
-    <div>
-      name: <input value={props.newName} onChange={props.actionName}/>
-    </div>
-    <div>
-      number: <input value={props.newNumber} onChange={props.actionNumber}/>
-    </div>
-    <div>
-      <button type="submit">Add</button>
-    </div>
-  </form>
-)
-
-const Persons = ({persons,deletePerson}) => {
-  return persons.map(person=><Person key={person.name} person={person} deletePerson={deletePerson}/>)
-}
-
-const Person = ({person,deletePerson}) => {
-   return (<div>
-    {person.name}: {person.number} <button onClick={() => deletePerson(person.id)}>delete</button>
-  </div>)
-}
-
-const Notification = ({message, type}) => {
-  if (message===null) return null
-
-  return <div className={type}>
-    {message}
-  </div>
-}
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
+import Persons from './components/Persons'
+import Notification from './components/Notification'
 
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  const [filteredPersons, setFilteredPersons] = useState([])
+  const [value, setValue] = useState('')
   const [confirmationMessage, setConfirmationMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
 
@@ -54,10 +20,11 @@ const App = () => {
       .getAll()
       .then(initialPersons =>{
         setPersons(initialPersons)
-        setFilteredPersons(initialPersons)
     })
   },[])
   // console.log('render', persons.length, 'persons')
+
+  const filteredPersons = persons.filter(person=>person.name.toLowerCase().indexOf(value.toLowerCase())>-1)
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -80,7 +47,6 @@ const App = () => {
             }, 5000)
 
             setPersons(persons.map(person => person.id === id ? updatedPerson : person))
-            setFilteredPersons(persons.map(person => person.id === id ? updatedPerson : person))
           })
           .catch(error => {
             setErrorMessage(`${newName} is not on the server anymore.`)
@@ -89,7 +55,6 @@ const App = () => {
             }, 5000)
             
             setPersons(persons.filter(person=>person.id!==id))
-            setFilteredPersons(persons.filter(person=>person.id!==id))
           })
       }
     } else {
@@ -102,7 +67,6 @@ const App = () => {
           }, 5000)
 
           setPersons(persons.concat(returnedPerson))
-          setFilteredPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
         })
@@ -118,9 +82,7 @@ const App = () => {
   }
 
   const handleSearch = (event) => {
-    const listMatchingPersons = persons.filter(person=>person.name.toLowerCase().indexOf(event.target.value.toLowerCase())>-1)
-    // console.log(listMatchingPersons)
-    setFilteredPersons(listMatchingPersons)
+    setValue(event.target.value)
   }
 
   const deletePerson = (id) => {
@@ -130,8 +92,7 @@ const App = () => {
         .deletePerson(id)
         .then(deletedPerson=>{
           // console.log(deletedPerson)
-          setPersons(persons.filter(person=>person.id!==id))
-          setFilteredPersons(persons.filter(person=>person.id!==id))
+          setPersons(persons.filter(person=>person.id!==deletedPerson.id))
       })
     }
   }
@@ -141,7 +102,7 @@ const App = () => {
       <Notification message={confirmationMessage} type="confirmation"/>
       <Notification message={errorMessage} type="error"/>
       <h1>Phonebook</h1>
-        <Filter action={handleSearch}/>
+        <Filter value={value} action={handleSearch}/>
       <h2>Add new</h2>
         <PersonForm action={addPerson} newName={newName} actionName={handleNameAddition} newNumber={newNumber} actionNumber={handleNumberAddition}/>
       <h2>Numbers</h2>
