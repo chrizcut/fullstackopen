@@ -5,3 +5,12 @@ Content-Type: application/json
     "name": "Senzu",
     "number": "+32 456 789 000"
 }
+
+###
+POST https://fullstackopen-1-7b50.onrender.com/api/persons
+Content-Type: application/json
+
+{
+    "name": "Senzu",
+    "number": "+32 456 789 000"
+}
