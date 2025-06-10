@@ -12,8 +12,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [value, setValue] = useState('')
-  const [confirmationMessage, setConfirmationMessage] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [message, setMessage] = useState([null,null])
 
   useEffect(()=>{
     personService
@@ -25,6 +24,7 @@ const App = () => {
   // console.log('render', persons.length, 'persons')
 
   const filteredPersons = persons.filter(person=>person.name.toLowerCase().indexOf(value.toLowerCase())>-1)
+
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -41,17 +41,19 @@ const App = () => {
         personService
           .update(id,newPerson)
           .then(updatedPerson=>{
-            setConfirmationMessage(`${newName}'s number has been modified.`)
+            setMessage([`${newName}'s number has been modified.`,"confirmation"])
             setTimeout(() => {
-              setConfirmationMessage(null)
+              setMessage([null,null])
             }, 5000)
 
             setPersons(persons.map(person => person.id === id ? updatedPerson : person))
+            setNewName('')
+            setNewNumber('')
           })
           .catch(error => {
-            setErrorMessage(`${newName} is not on the server anymore.`)
+            setMessage([`${newName} is not on the server anymore.`,"error"])
             setTimeout(() => {
-              setErrorMessage(null)
+              setMessage([null,null])
             }, 5000)
             
             setPersons(persons.filter(person=>person.id!==id))
@@ -61,14 +63,21 @@ const App = () => {
       personService
         .create(newPerson)
         .then(returnedPerson => {
-          setConfirmationMessage(`${newName} has been added to the phonebook.`)
+          setMessage([`${newName} has been added to the phonebook.`,"confirmation"])
           setTimeout(() => {
-            setConfirmationMessage(null)
+            setMessage([null,null])
           }, 5000)
 
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
+        })
+        .catch(error => {
+          console.log(error.response.data.error)
+          setMessage([error.response.data.error,"error"])
+          setTimeout(() => {
+            setMessage([null,null])
+          }, 5000)
         })
       }
   }
@@ -90,17 +99,20 @@ const App = () => {
     if (window.confirm(`Delete ${namePerson}?`)) {
       personService
         .deletePerson(id)
-        .then(deletedPerson=>{
-          // console.log(deletedPerson)
-          setPersons(persons.filter(person=>person.id!==deletedPerson.id))
+        .then(result=>{
+          console.log(result)
+          setPersons(persons.filter(person=>person.id!==id))
+          setMessage([`${namePerson} has been deleted from the phonebook.`,"confirmation"])
+          setTimeout(() => {
+            setMessage([null,null])
+          }, 5000)
       })
     }
   }
 
   return (
     <div>
-      <Notification message={confirmationMessage} type="confirmation"/>
-      <Notification message={errorMessage} type="error"/>
+      <Notification message={message[0]} type={message[1]}/>
       <h1>Phonebook</h1>
         <Filter value={value} action={handleSearch}/>
       <h2>Add new</h2>
