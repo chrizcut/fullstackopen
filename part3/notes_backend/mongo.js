@@ -21,8 +21,8 @@ const noteSchema = new mongoose.Schema({
 const Note = mongoose.model('Note', noteSchema)
 
 const note = new Note({
-    content: "Mongoose makes use of mongo easy",
-    important: true
+  content: 'Mongoose makes use of mongo easy',
+  important: true
 })
 
 note.save().then(result => {

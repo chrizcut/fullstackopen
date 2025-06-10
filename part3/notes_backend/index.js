@@ -28,12 +28,12 @@ app.use(requestLogger)
 app.use(
   morgan(function (tokens, req, res) {
     const tmpLog = [
-        tokens.method(req, res),
-        tokens.url(req, res),
-        tokens.status(req, res),
-        tokens.res(req, res, 'content-length'), '-',
-        tokens['response-time'](req, res), 'ms'
-      ]
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, 'content-length'), '-',
+      tokens['response-time'](req, res), 'ms'
+    ]
     let returnedLog=[]
     if (req['method']==='POST'){
       returnedLog = tmpLog.concat(JSON.stringify(req['body']))
@@ -62,7 +62,7 @@ app.get('/api/notes/:id', (request, response, next) => {
       } else {
         response.status(404).end()
       }
-  })
+    })
     .catch(error => {
       // console.log(error)
       // response.status(400).send({ error: 'malformatted id' })
@@ -72,7 +72,7 @@ app.get('/api/notes/:id', (request, response, next) => {
 
 app.delete('/api/notes/:id', (request, response, next) => {
   Note.findByIdAndDelete(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -118,9 +118,9 @@ app.post('/api/notes', (request, response, next) => {
 
   note.save()
     .then(savedNote => {
-    response.json(savedNote)
+      response.json(savedNote)
     })
-    .catch(error=>next(error))
+    .catch(error => next(error))
 })
 
 const unknownEndpoint = (request, response) => {
