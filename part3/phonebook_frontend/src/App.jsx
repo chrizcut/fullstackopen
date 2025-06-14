@@ -50,7 +50,7 @@ const App = () => {
             setNewName('')
             setNewNumber('')
           })
-          .catch(error => {
+          .catch(() => {
             setMessage([`${newName} is not on the server anymore.`,"error"])
             setTimeout(() => {
               setMessage([null,null])
@@ -113,7 +113,7 @@ const App = () => {
   return (
     <div>
       <Notification message={message[0]} type={message[1]}/>
-      <h1>Phonebook</h1>
+      <h1>Test phonebook</h1>
         <Filter value={value} action={handleSearch}/>
       <h2>Add new</h2>
         <PersonForm action={addPerson} newName={newName} actionName={handleNameAddition} newNumber={newNumber} actionNumber={handleNumberAddition}/>
